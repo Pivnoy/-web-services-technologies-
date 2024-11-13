@@ -1,7 +1,10 @@
 .idea
 /lab1/javaee/.idea
 /lab1/javaee/.mvn
+/lab1/javaee/target
 /lab1/standalone/.idea
 /lab1/standalone/.mvn
+/lab1/standalone/target
 /lab1/client/.idea
 /lab1/client/.mvn
+/lab1/client/target

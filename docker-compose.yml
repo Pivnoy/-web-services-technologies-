@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  psql:
+    image: postgres:15
+    container_name: 'psql'
+    ports:
+      - '5432:5432' # For debug, drop in prod
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=psql

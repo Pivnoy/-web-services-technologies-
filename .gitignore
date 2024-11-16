@@ -8,3 +8,10 @@
 /lab1/client/.idea
 /lab1/client/.mvn
 /lab1/client/target
+
+/lab2/client/.idea
+/lab2/client/.mvn
+/lab2/client/target
+/lab2/standalone/.idea
+/lab2/standalone/.mvn
+/lab2/standalone/target

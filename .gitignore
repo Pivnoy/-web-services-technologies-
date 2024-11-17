@@ -15,3 +15,10 @@
 /lab2/standalone/.idea
 /lab2/standalone/.mvn
 /lab2/standalone/target
+
+/lab3/client/.idea
+/lab3/client/.mvn
+/lab3/client/target
+/lab3/standalone/.idea
+/lab3/standalone/.mvn
+/lab3/standalone/target

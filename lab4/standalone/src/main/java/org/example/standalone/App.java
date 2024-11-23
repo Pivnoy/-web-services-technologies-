@@ -1,0 +1,36 @@
+package org.example.standalone;
+
+import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
+import com.sun.jersey.api.core.ClassNamesResourceConfig;
+import com.sun.jersey.api.core.ResourceConfig;
+import org.example.standalone.models.ClusterVm;
+import org.example.standalone.service.ClusterVmWebService;
+
+import java.io.IOException;
+import java.net.URI;
+import org.glassfish.grizzly.http.server.*;
+
+public class App {
+
+    private static final URI BASE_URI =
+            URI.create("http://localhost:8080/v1/");
+
+    public static void main(String[] args) {
+        HttpServer server = null;
+        try {
+            ResourceConfig resourceConfig = new ClassNamesResourceConfig(ClusterVmWebService.class);
+            server = GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
+            server.start();
+            System.in.read();
+            stopServer(server);
+        } catch (IOException e) {
+            e.printStackTrace();
+            stopServer(server);
+        }
+    }
+
+    private static void stopServer(HttpServer server) {
+        if (server != null)
+            server.stop();
+    }
+}

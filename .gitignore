@@ -22,3 +22,13 @@
 /lab3/standalone/.idea
 /lab3/standalone/.mvn
 /lab3/standalone/target
+
+/lab4/javaee/.idea
+/lab4/javaee/.mvn
+/lab4/javaee/target
+/lab4/standalone/.idea
+/lab4/standalone/.mvn
+/lab4/standalone/target
+/lab4/client/.idea
+/lab4/client/.mvn
+/lab4/client/target

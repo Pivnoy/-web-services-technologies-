@@ -1,9 +1,8 @@
-package org.example.standalone.dto;
+package dto;
 
 import lombok.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,7 +17,7 @@ public class Filter<T>{
     private T value;
 
     public String formFilterStr()  {
-        if (value instanceof String || value instanceof UUID) {
+        if (value instanceof String) {
             return this.fieldName + EQUALS + "'" + value + "'";
         }
 

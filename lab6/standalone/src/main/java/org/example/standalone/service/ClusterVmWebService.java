@@ -1,15 +1,15 @@
 package org.example.standalone.service;
 
-import lombok.AllArgsConstructor;
 import lombok.var;
 import org.example.standalone.dto.Filter;
-import org.example.standalone.dto.QueryStatus;
 import org.example.standalone.exceptions.DuplicateError;
 import org.example.standalone.exceptions.ForbiddenError;
 import org.example.standalone.exceptions.NotFoundError;
 import org.example.standalone.exceptions.ValidationError;
 import org.example.standalone.models.ClusterVm;
 import org.example.standalone.repository.ClusterVmSQLDAO;
+import org.example.standalone.util.throttling.Throttler;
+import org.example.standalone.util.throttling.ThrottlingException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
@@ -22,9 +22,11 @@ import java.util.*;
 public class ClusterVmWebService {
 
     private final ClusterVmSQLDAO clusterVmSQLDAO;
+    private final Throttler throttler;
 
     public ClusterVmWebService() {
         this.clusterVmSQLDAO = new ClusterVmSQLDAO();
+        this.throttler = Throttler.getInstance();
     }
 
     @GET
@@ -35,7 +37,8 @@ public class ClusterVmWebService {
             @QueryParam(value = "image") String image,
             @QueryParam(value = "cpu") Integer cpu,
             @QueryParam(value = "memory") Integer memory
-    ) {
+    ) throws ThrottlingException {
+        throttler.throttle();
         List<Filter> filters = new ArrayList<>();
         if (id != null) {
             filters.add(new Filter("id", id));
@@ -68,7 +71,8 @@ public class ClusterVmWebService {
     @Path("{id}")
     public String deleteClusterVm(
             @HeaderParam("Authorization") String auth,
-            @PathParam(value = "id") UUID id) throws ValidationError, NotFoundError, ForbiddenError {
+            @PathParam(value = "id") UUID id) throws ValidationError, NotFoundError, ForbiddenError, ThrottlingException {
+        throttler.throttle();
         checkUser(auth);
 
         var idV = Optional.ofNullable(id).orElseThrow(() -> new ValidationError("id"));
@@ -81,7 +85,8 @@ public class ClusterVmWebService {
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public String createClusterVm( @HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws ValidationError, DuplicateError, ForbiddenError {
+    public String createClusterVm( @HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws ValidationError, DuplicateError, ForbiddenError, ThrottlingException {
+        throttler.throttle();
         checkUser(auth);
         var vmidV = Optional.ofNullable(clusterVm.getVmid()).filter(v -> v > 0).orElseThrow(() -> new ValidationError("vmid"));
         var nameV = Optional.ofNullable(clusterVm.getName()).filter(s -> !s.trim().isEmpty()).orElseThrow(() -> new ValidationError("name"));
@@ -107,7 +112,8 @@ public class ClusterVmWebService {
 
     @PUT
     @Consumes({MediaType.APPLICATION_JSON})
-    public String updateClusterVm(@HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws NotFoundError, ValidationError, DuplicateError, ForbiddenError {
+    public String updateClusterVm(@HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws NotFoundError, ValidationError, DuplicateError, ForbiddenError, ThrottlingException {
+        throttler.throttle();
         checkUser(auth);
 
         var idV = Optional.ofNullable(clusterVm.getId()).orElseThrow(() -> new ValidationError("id"));

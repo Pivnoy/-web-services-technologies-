@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Scanner;
 
 @AllArgsConstructor
@@ -20,7 +21,19 @@ public class CreateCommand implements Command {
     public void execute(Scanner scanner) throws IOException {
         ClusterVm clusterVm = new ClusterVm();
 
-            System.out.print("Введите vmid: ");
+        System.out.print("Введите имя пользователя: ");
+        String user = scanner.nextLine();
+        if (user == null || user.isEmpty()) {
+            throw new IllegalArgumentException("обязательное значение!");
+        }
+
+        System.out.print("Введите пароль: ");
+        String password = scanner.nextLine();
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("обязательное значение!");
+        }
+
+        System.out.print("Введите vmid: ");
             String vmidInput = scanner.nextLine();
             if (vmidInput != null && !vmidInput.isEmpty()) {
                 clusterVm.setVmid(Long.parseLong(vmidInput));
@@ -52,13 +65,15 @@ public class CreateCommand implements Command {
 
             try {
                 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-                String id = this.requestSender.sendMutateRequest("", RequestType.POST, ow.writeValueAsString(clusterVm));
+                String id = this.requestSender.sendMutateRequest("", Base64.getEncoder().encodeToString((user + ":" + password).getBytes()), RequestType.POST, ow.writeValueAsString(clusterVm));
 
                 System.out.println("Получен результат: " + id);
             } catch (IllegalStateException e) {
                 System.out.println("Получена ошибка\n" + e.getMessage());
             } catch (NumberFormatException e) {
                 System.out.println("Значение должно быть целым числом: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Значение должно быть указано: " + e.getMessage());
             }
     }
 }

@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import dto.ClusterVm;
@@ -23,13 +24,13 @@ public class RequestSender {
         this.client = Client.create(clientConfig);
     }
 
-    public String sendMutateRequest(String url, RequestType type, String json) {
-        WebResource webResource = client.resource(baseURL + url);
+    public String sendMutateRequest(String url, String auth, RequestType type, String json) {
+        Builder webResource = client.resource(baseURL + url).header("Authorization", auth);
         ClientResponse clientResponse = null;
 
         switch (type) {
             case POST:
-                clientResponse =  webResource.
+                clientResponse = webResource.
                         type(MediaType.APPLICATION_JSON_TYPE).post(ClientResponse.class, json);
                 break;
             case PUT:
@@ -71,8 +72,8 @@ public class RequestSender {
 
         if (clientResponse != null) {
             if (clientResponse.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-                System.out.println(clientResponse.getStatus());
-                throw new IllegalStateException("Request failed");
+                throw new IllegalStateException("Статус: " + clientResponse.getStatus() + "\n" +
+                        "Сообщение: " + clientResponse.getEntity(String.class));
             }
 
             return clientResponse.getEntity(new GenericType<List<ClusterVm>>() {});

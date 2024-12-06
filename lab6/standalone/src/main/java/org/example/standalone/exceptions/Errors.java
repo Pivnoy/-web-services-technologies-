@@ -10,4 +10,6 @@ public final class Errors {
     public static final String NOT_FOUND = "entity not found";
 
     public static final String DUPLICATE = "duplicated value with field";
+
+    public static final String FORBIDDEN = "forbidden";
 }

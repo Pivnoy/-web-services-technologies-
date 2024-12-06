@@ -5,6 +5,7 @@ import lombok.var;
 import org.example.standalone.dto.Filter;
 import org.example.standalone.dto.QueryStatus;
 import org.example.standalone.exceptions.DuplicateError;
+import org.example.standalone.exceptions.ForbiddenError;
 import org.example.standalone.exceptions.NotFoundError;
 import org.example.standalone.exceptions.ValidationError;
 import org.example.standalone.models.ClusterVm;
@@ -13,10 +14,7 @@ import org.example.standalone.repository.ClusterVmSQLDAO;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequestScoped
 @Path("/vms")
@@ -69,7 +67,10 @@ public class ClusterVmWebService {
     @DELETE
     @Path("{id}")
     public String deleteClusterVm(
-            @PathParam(value = "id") UUID id) throws ValidationError, NotFoundError {
+            @HeaderParam("Authorization") String auth,
+            @PathParam(value = "id") UUID id) throws ValidationError, NotFoundError, ForbiddenError {
+        checkUser(auth);
+
         var idV = Optional.ofNullable(id).orElseThrow(() -> new ValidationError("id"));
         if (!this.clusterVmSQLDAO.getClusterVmByID(idV).isPresent()){
             throw  new NotFoundError("id", id.toString());
@@ -80,7 +81,8 @@ public class ClusterVmWebService {
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public String createClusterVm(ClusterVm clusterVm) throws ValidationError, DuplicateError {
+    public String createClusterVm( @HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws ValidationError, DuplicateError, ForbiddenError {
+        checkUser(auth);
         var vmidV = Optional.ofNullable(clusterVm.getVmid()).filter(v -> v > 0).orElseThrow(() -> new ValidationError("vmid"));
         var nameV = Optional.ofNullable(clusterVm.getName()).filter(s -> !s.trim().isEmpty()).orElseThrow(() -> new ValidationError("name"));
         var imageV = Optional.ofNullable(clusterVm.getImage()).filter(s -> !s.trim().isEmpty()).orElseThrow(() -> new ValidationError("image"));
@@ -105,7 +107,9 @@ public class ClusterVmWebService {
 
     @PUT
     @Consumes({MediaType.APPLICATION_JSON})
-    public String updateClusterVm(ClusterVm clusterVm) throws NotFoundError, ValidationError, DuplicateError {
+    public String updateClusterVm(@HeaderParam("Authorization") String auth, ClusterVm clusterVm) throws NotFoundError, ValidationError, DuplicateError, ForbiddenError {
+        checkUser(auth);
+
         var idV = Optional.ofNullable(clusterVm.getId()).orElseThrow(() -> new ValidationError("id"));
 
         if (clusterVm.getName() == null && clusterVm.getImage()  == null && clusterVm.getCpu()  == null && clusterVm.getMemory()  == null && clusterVm.getVmid()  == null) {
@@ -141,6 +145,19 @@ public class ClusterVmWebService {
         }
 
         return this.clusterVmSQLDAO.updateClusterVm(clusterVm).toString();
+    }
+
+    private void checkUser(String auth) throws ForbiddenError {
+        String[] credentials = new String(Base64.getDecoder().decode(auth)).split(":");
+        if (credentials.length != 2) {
+            throw new ForbiddenError();
+        }
+
+        String basicAuthUser = "admin";
+        String basicAuthPassword = "password";
+        if (!credentials[0].equals(basicAuthUser) || !credentials[1].equals(basicAuthPassword)) {
+            throw new ForbiddenError();
+        }
     }
 
 }

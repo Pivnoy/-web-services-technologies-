@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -22,6 +23,18 @@ public class UpdateCommand implements Command {
         ClusterVm clusterVm = new ClusterVm();
 
         try {
+            System.out.print("Введите имя пользователя: ");
+            String user = scanner.nextLine();
+            if (user == null || user.isEmpty()) {
+                throw new IllegalArgumentException("обязательное значение!");
+            }
+
+            System.out.print("Введите пароль: ");
+            String password = scanner.nextLine();
+            if (password == null || password.isEmpty()) {
+                throw new IllegalArgumentException("обязательное значение!");
+            }
+
             System.out.print("Введите id: ");
             String idInput = scanner.nextLine();
             if (idInput != null && !idInput.isEmpty()) {
@@ -62,7 +75,7 @@ public class UpdateCommand implements Command {
             }
 
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            String status = this.requestSender.sendMutateRequest("", RequestType.PUT, ow.writeValueAsString(clusterVm));
+            String status = this.requestSender.sendMutateRequest("", Base64.getEncoder().encodeToString((user + ":" + password).getBytes()), RequestType.PUT, ow.writeValueAsString(clusterVm));
 
             System.out.println("Получен результат: " + status);
         } catch (IllegalArgumentException e) {

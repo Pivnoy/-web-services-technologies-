@@ -5,6 +5,7 @@ import client.RequestType;
 import command.ifc.Command;
 import lombok.AllArgsConstructor;
 
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -16,8 +17,20 @@ public class  DeleteCommand implements Command {
     @Override
     public void execute(Scanner scanner) {
         UUID id = null;
-        System.out.print("Введите id виртуальное машины: ");
         try {
+            System.out.print("Введите имя пользователя: ");
+            String user = scanner.nextLine();
+            if (user == null || user.isEmpty()) {
+                throw new IllegalArgumentException("обязательное значение!");
+            }
+
+            System.out.print("Введите пароль: ");
+            String password = scanner.nextLine();
+            if (password == null || password.isEmpty()) {
+                throw new IllegalArgumentException("обязательное значение!");
+            }
+
+            System.out.print("Введите id виртуальное машины: ");
             String idInput = scanner.nextLine();
             if (idInput != null && !idInput.isEmpty()) {
                 id = UUID.fromString(idInput);
@@ -25,7 +38,7 @@ public class  DeleteCommand implements Command {
                 throw new IllegalArgumentException("укажети id!");
             }
 
-            String status = requestSender.sendMutateRequest("/" + id, RequestType.DELETE, "");
+            String status = requestSender.sendMutateRequest("/" + id, Base64.getEncoder().encodeToString((user + ":" + password).getBytes()),RequestType.DELETE, "");
 
             System.out.println("Получен результат: " + status);
         } catch (IllegalArgumentException e) {

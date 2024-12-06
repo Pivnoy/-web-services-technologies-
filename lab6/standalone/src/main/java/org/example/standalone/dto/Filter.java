@@ -2,6 +2,8 @@ package org.example.standalone.dto;
 
 import lombok.*;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -14,7 +16,7 @@ public class Filter<T>{
     private T value;
 
     public String toString()  {
-        if (value instanceof String) {
+        if (value instanceof String || value instanceof UUID) {
             return this.fieldName + EQUALS + "'" + value + "'";
         }
 

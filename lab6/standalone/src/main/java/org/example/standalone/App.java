@@ -5,10 +5,7 @@ import com.sun.jersey.api.core.ClassNamesResourceConfig;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
-import org.example.standalone.exceptions.DuplicateError;
-import org.example.standalone.exceptions.DuplicateErrorProvider;
-import org.example.standalone.exceptions.NotFoundErrorProvider;
-import org.example.standalone.exceptions.ValidationErrorProvider;
+import org.example.standalone.exceptions.*;
 import org.example.standalone.repository.ClusterVmSQLDAO;
 import org.example.standalone.service.ClusterVmWebService;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -29,7 +26,8 @@ public class App {
                     ClusterVmWebService.class,
                     DuplicateErrorProvider.class,
                     NotFoundErrorProvider.class,
-                    ValidationErrorProvider.class);
+                    ValidationErrorProvider.class,
+                    ForbiddenErrorProvider.class);
 
             server = GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
             server.start();

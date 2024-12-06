@@ -29,6 +29,7 @@ public class ClusterVmSQLDAO {
                "where " + filters.stream().
                        filter(Objects::nonNull).map(Filter::toString).collect(Collectors.joining(" and ")))  + ";";
 
+        System.out.println(query);
        List<ClusterVm> books = null;
        try {
            books = executor.execQuery(query, result -> {
